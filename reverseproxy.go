@@ -8,6 +8,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	gw "./gen"
 )
@@ -15,7 +16,7 @@ import (
 var (
 	// command-line options:
 	// gRPC server endpoint
-	grpcServerEndpoint = flag.String("bchd-endpoint", "bchd.fountainhead.cash:443", "BCHD gRPC server endpoint")
+	grpcServerEndpoint = flag.String("bchd-endpoint", "localhost:8335", "BCHD gRPC server endpoint")
 	proxyPort          = flag.String("port", "8085", "port for the proxy server")
 )
 
@@ -27,7 +28,7 @@ func run() error {
 	// Register gRPC server endpoint
 	// Note: Make sure the gRPC server is running properly and accessible
 	mux := runtime.NewServeMux()
-	opts := []grpc.DialOption{grpc.WithInsecure(), grpc.WithMaxMsgSize(4294967295)}
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")), grpc.WithMaxMsgSize(4294967295)}
 	err := gw.RegisterBchrpcHandlerFromEndpoint(ctx, mux, *grpcServerEndpoint, opts)
 	if err != nil {
 		return err
